@@ -1,7 +1,7 @@
 # AlbumCollection
 
 ## About The Project
-This project is a sample for downloading a list of albums and artists from the server and then displaying it as a list. Upon tapping on a single album, it will open a collection of thumbnail images that belong to the album. Furthermore, upon tapping on a thumbnail, it will download the full image and open in a separate view with zoom capability.
+This project is a sample for downloading a list of albums and artists from the `jsonplaceholder.typicode.com` server and then displaying it as a list. Upon tapping on a single album, it will open a collection of thumbnail images that belong to the album. Furthermore, upon tapping on a thumbnail, it will download the full image and open in a separate view with zoom capability.
 
 ## Getting Started
 
