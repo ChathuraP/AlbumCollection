@@ -189,7 +189,6 @@ class AlbumListViewController: UIViewController {
            let index = sender as? Int,
             let vc = segue.destination as? PhotosCollectionViewController {
             vc.album = self.albums[index]
-            print("photoGallerySegue with album \(vc.album?.id)")
         }
     }
 }

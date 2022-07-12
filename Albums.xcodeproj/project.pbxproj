@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		406A93E44C9739842B117F28 /* Pods_AlbumsTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50F084C5868BDA9170FC381F /* Pods_AlbumsTests.framework */; };
 		5B909285DB728A418E4CF49F /* Pods_Albums_AlbumsUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84722693D9040EBE640B7992 /* Pods_Albums_AlbumsUITests.framework */; };
+		77BDF4A3287C26D5003C99E2 /* FullImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77BDF4A2287C26D5003C99E2 /* FullImageViewController.swift */; };
+		77BDF4A4287C26D5003C99E2 /* FullImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77BDF4A2287C26D5003C99E2 /* FullImageViewController.swift */; };
+		77BDF4A5287C26D5003C99E2 /* FullImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77BDF4A2287C26D5003C99E2 /* FullImageViewController.swift */; };
 		77D1BB7628792D5F0007AF99 /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D1BB7528792D5F0007AF99 /* Album.swift */; };
 		77D1BB7728792D5F0007AF99 /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D1BB7528792D5F0007AF99 /* Album.swift */; };
 		77D1BB7828792D5F0007AF99 /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D1BB7528792D5F0007AF99 /* Album.swift */; };
@@ -73,6 +76,7 @@
 		50F084C5868BDA9170FC381F /* Pods_AlbumsTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AlbumsTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		63BB211279D964176B9F7A28 /* Pods-Albums.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Albums.debug.xcconfig"; path = "Target Support Files/Pods-Albums/Pods-Albums.debug.xcconfig"; sourceTree = "<group>"; };
 		662A33397A38E84BAB522DA4 /* Pods-Albums-AlbumsUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Albums-AlbumsUITests.release.xcconfig"; path = "Target Support Files/Pods-Albums-AlbumsUITests/Pods-Albums-AlbumsUITests.release.xcconfig"; sourceTree = "<group>"; };
+		77BDF4A2287C26D5003C99E2 /* FullImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullImageViewController.swift; sourceTree = "<group>"; };
 		77D1BB7528792D5F0007AF99 /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
 		77D1BB7928792D910007AF99 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		77D1BB7D28792DB80007AF99 /* Photo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
@@ -176,6 +180,7 @@
 			children = (
 				77FB13DB28791DB900DB27AA /* AlbumListViewController.swift */,
 				77D1BB98287BBFD90007AF99 /* PhotosCollectionViewController.swift */,
+				77BDF4A2287C26D5003C99E2 /* FullImageViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -512,6 +517,7 @@
 				77D1BB7E28792DB80007AF99 /* Photo.swift in Sources */,
 				77D1BB82287932550007AF99 /* APIService.swift in Sources */,
 				77D1BB86287932A00007AF99 /* AFService.swift in Sources */,
+				77BDF4A3287C26D5003C99E2 /* FullImageViewController.swift in Sources */,
 				77FB13DC28791DB900DB27AA /* AlbumListViewController.swift in Sources */,
 				77FB13D828791DB900DB27AA /* AppDelegate.swift in Sources */,
 				77D1BB8C28793F430007AF99 /* Constants.swift in Sources */,
@@ -533,6 +539,7 @@
 				77D1BB83287932550007AF99 /* APIService.swift in Sources */,
 				77D1BB9A287BBFD90007AF99 /* PhotosCollectionViewController.swift in Sources */,
 				77D1BB9228797A590007AF99 /* AlbumCell.swift in Sources */,
+				77BDF4A4287C26D5003C99E2 /* FullImageViewController.swift in Sources */,
 				77FB13EF28791DBC00DB27AA /* AlbumsTests.swift in Sources */,
 				77D1BBA2287C039D0007AF99 /* PhotoThumbnailViewCell.swift in Sources */,
 				77D1BB8D28793F430007AF99 /* Constants.swift in Sources */,
@@ -554,6 +561,7 @@
 				77D1BB84287932550007AF99 /* APIService.swift in Sources */,
 				77D1BB8028792DB80007AF99 /* Photo.swift in Sources */,
 				77D1BB88287932A00007AF99 /* AFService.swift in Sources */,
+				77BDF4A5287C26D5003C99E2 /* FullImageViewController.swift in Sources */,
 				77D1BB8E28793F430007AF99 /* Constants.swift in Sources */,
 				77D1BB9328797A590007AF99 /* AlbumCell.swift in Sources */,
 				77D1BB97287BBF4C0007AF99 /* UIImageViewExtention.swift in Sources */,

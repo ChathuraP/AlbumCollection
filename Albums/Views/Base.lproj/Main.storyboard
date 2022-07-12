@@ -204,7 +204,6 @@
         <!--Photos Collection View Controller-->
         <scene sceneID="MCj-7G-Fl3">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="jsh-mL-v6X" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <collectionViewController modalPresentationStyle="fullScreen" id="MDO-5Y-GQC" customClass="PhotosCollectionViewController" customModule="Albums" customModuleProvider="target" sceneMemberID="viewController">
                     <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="nXB-mP-iRG">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
@@ -250,9 +249,44 @@
                     </collectionView>
                     <navigationItem key="navigationItem" id="vy3-zT-tUp"/>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
+                    <connections>
+                        <segue destination="RX8-b0-8wE" kind="show" identifier="imageFullscreenSegue" id="aoR-zJ-56W"/>
+                    </connections>
                 </collectionViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="jsh-mL-v6X" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1928" y="68"/>
+        </scene>
+        <!--Full Image View Controller-->
+        <scene sceneID="wkV-Nn-Ja3">
+            <objects>
+                <viewController id="RX8-b0-8wE" customClass="FullImageViewController" customModule="Albums" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="LNo-TQ-jDh">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ihA-iK-HId" customClass="ImageScrollView" customModule="ImageScrollView">
+                                <rect key="frame" x="0.0" y="88" width="414" height="774"/>
+                            </scrollView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="zTs-Aw-zsf"/>
+                        <color key="backgroundColor" red="0.25287812949999999" green="0.0959283784" blue="0.36131116749999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="tintColor" red="0.97472208739999999" green="0.81083160639999996" blue="0.25754219290000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="bottomMargin" secondItem="ihA-iK-HId" secondAttribute="bottom" id="FAH-bI-VhJ"/>
+                            <constraint firstItem="ihA-iK-HId" firstAttribute="top" secondItem="zTs-Aw-zsf" secondAttribute="top" id="bJA-vG-0AJ"/>
+                            <constraint firstItem="zTs-Aw-zsf" firstAttribute="trailing" secondItem="ihA-iK-HId" secondAttribute="trailing" id="eUe-33-Jxz"/>
+                            <constraint firstItem="ihA-iK-HId" firstAttribute="leading" secondItem="zTs-Aw-zsf" secondAttribute="leading" id="pRY-kW-RIl"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="G6b-np-Gmo"/>
+                    <connections>
+                        <outlet property="imageScrollView" destination="ihA-iK-HId" id="fqy-sC-IwT"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="CyY-cP-hz3" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2919" y="68"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="bLJ-1R-kRL">

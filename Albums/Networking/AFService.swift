@@ -5,12 +5,13 @@
 //  Created by Chathura Palihakkara on 9/7/22.
 //
 
-import Foundation
 import Alamofire
+import AlamofireImage
 import CocoaLumberjack
 
 typealias AFResponseObjcType = ([String:Any]?, Error?) -> Void
 typealias AFResponseStringType = (String?, Error?) -> ()
+typealias AFResponseImageType = (UIImage?, Error?) -> ()
 
 public class AFService {
     
@@ -25,18 +26,32 @@ public class AFService {
         .responseString { response in
             switch response.result {
             case .success(let data):
-//                DDLogInfo("AFService response \(data)")
+                DDLogVerbose("AFService Image download success")
                 completionHandler(data, nil)
             case .failure(let error):
-                DDLogError("AFService Request failed\(error)")
+                DDLogError("AFService Request failed \(error)")
                 completionHandler(nil, error)
             }
         }
     }
     
-//    func makePostRequest(endpoint: String, params: Parameters, completionHandler: @escaping ([String:Any]?, Error?) -> Void) {
-//
-//    }
+    func downloadImage(imageURL: String, completionHandler: @escaping AFResponseImageType) {
+        AF.request(imageURL).responseImage { response in
+            switch response.result {
+            case .success(let image):
+                DDLogVerbose("AFService Image download success")
+                completionHandler(image, nil)
+            case .failure(let error):
+                DDLogError("AFService Image download failed \(error)")
+                completionHandler(nil, error)
+            }
+        }
+    }
+    
+    
+    //    func makePostRequest(endpoint: String, params: Parameters, completionHandler: @escaping ([String:Any]?, Error?) -> Void) {
+    //
+    //    }
     
 }
 

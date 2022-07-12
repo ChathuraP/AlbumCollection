@@ -7,16 +7,23 @@
 
 import Foundation
 import CocoaLumberjack
+import Alamofire
+import UIKit
 
 typealias Parameters = [String: Any]
 typealias APIResponseAlbumArray = (() throws -> [Album]) -> ()
-typealias APIResponseUserObject = (() throws -> User?) -> ()
-typealias APIResponseUsersArray = (() throws -> [User]) -> ()
+//typealias APIResponseUserObject = (() throws -> User?) -> ()
 typealias APIResponsePhotosArray = (() throws ->[Photo]) -> ()
 typealias APIResponseUsersDictionary = (() throws -> [Int : User]) -> ()
+typealias APIResponseImage = (() throws -> UIImage?) -> ()
 
 public class APIService {
     public static let shared = APIService()
+    private let networkStat = NetworkReachabilityManager()!
+    
+    private func isInternetAvailable() -> Bool {
+        return networkStat.isReachable
+    }
     
     func fetchAlbums(requestString: String, completionHandler: @escaping APIResponseAlbumArray) {
         let requestURL = Constants.URLs.baseURL + requestString
@@ -80,30 +87,6 @@ public class APIService {
         })
     }
     
-    func fetchUserForId(_ userId: String, completionHandler: @escaping APIResponseUserObject) {
-        let requestURL = Constants.URLs.baseURL + Constants.APIs.userId + userId
-        AFService().makeGetRequest(endpoint: requestURL, params: nil, completionHandler: { responseStr, error in
-            if let err = error {
-                DDLogError("Fetch User \(userId) Failed \(err.localizedDescription)")
-                completionHandler({ throw err })
-            } else {
-//                DDLogInfo("Fetch User \(userId) Completed")
-                guard let response = responseStr else {
-                    completionHandler({ throw AppError.invalidResponse })
-                    return
-                }
-                if let userData = response.jsonStringToArray(),
-                   let user = userData.first as? Dictionary<String, Any> {
-                    let user = User(data: user)
-                    completionHandler({ return user })
-                } else {
-                    completionHandler({ throw AppError.serializationFailed })
-                    return
-                }
-            }
-        })
-    }
-    
     func fetchPhotosForAlbum(requestURL: String, completionHandler: @escaping APIResponsePhotosArray) {
         AFService().makeGetRequest(endpoint: requestURL, params: nil, completionHandler: { responseStr, error in
             if let err = error {
@@ -134,11 +117,19 @@ public class APIService {
         })
     }
     
-    
-//    private func requestParamsforFetch(onComplete: @escaping ((Parameters?) -> Void)) {
-//
-//
-//        onComplete("postData")
-//    }
+    func fetchImageFromURL(requestURL: String, completionHandler: @escaping APIResponseImage) {
+        AFService().downloadImage(imageURL: requestURL) { responseImage, error in
+            if let err = error {
+                DDLogError("Fetch Image Failed \(err.localizedDescription)")
+                completionHandler({ throw err })
+            } else {
+                if let image = responseImage as? UIImage {
+                    completionHandler({ return image })
+                } else {
+                    completionHandler({ throw AppError.invalidResponse })
+                }
+            }
+        }
+    }
     
 }

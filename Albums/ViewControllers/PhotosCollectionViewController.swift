@@ -32,17 +32,14 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
         if let album = album {
-            print("PhotosCollectionViewController receive album \(album.id)")
-            self.navigationController?.navigationBar.topItem?.title = album.title
+            self.title = album.title
         }
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         collectionViewLayout.invalidateLayout()
     }
-    
-    private func startLoadingThumbnails() {}
-    
+        
     // MARK: - API Network calls
     private func getPhotos(albumId: Int) {
         if let selectedAlbum = self.album {
@@ -61,16 +58,15 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
         }
     }
 
-    
-    /*
     // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+        if segue.identifier == "imageFullscreenSegue",
+           let index = sender as? Int,
+           let vc = segue.destination as? FullImageViewController,
+           let selectedPhoto = self.photos[index] as? Photo {
+            vc.photoData = selectedPhoto
+        }
     }
-    */
 }
 
 extension PhotosCollectionViewController {
@@ -80,7 +76,6 @@ extension PhotosCollectionViewController {
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
-
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return photos.count
@@ -93,6 +88,12 @@ extension PhotosCollectionViewController {
         } else {
             return UICollectionViewCell()
         }
+    }
+    
+    // MARK: UICollectionViewDelegate
+
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        performSegue(withIdentifier: "imageFullscreenSegue", sender: indexPath.row)
     }
     
     // MARK: UICollectionViewDelegateFlowLayout
@@ -114,35 +115,6 @@ extension PhotosCollectionViewController {
                         insetForSectionAt section: Int) -> UIEdgeInsets {
         UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
     }
-    // MARK: UICollectionViewDelegate
-
-    /*
-    // Uncomment this method to specify if the specified item should be highlighted during tracking
-    override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
-
-    /*
-    // Uncomment this method to specify if the specified item should be selected
-    override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
-
-    /*
-    // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-    override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
     
-    }
-    */
 }
 

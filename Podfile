@@ -9,8 +9,7 @@ target 'Albums' do
 
   pod 'Alamofire'
   pod 'AlamofireImage'
-  pod 'ImageSlideshow'
-  pod 'ReachabilitySwift'
+  pod 'ImageScrollView'
   pod 'CocoaLumberjack/Swift'
 
   target 'AlbumsTests' do
