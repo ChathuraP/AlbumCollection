@@ -8,11 +8,9 @@
 import Foundation
 import CocoaLumberjack
 import Alamofire
-import UIKit
 
 typealias Parameters = [String: Any]
 typealias APIResponseAlbumArray = (() throws -> [Album]) -> ()
-//typealias APIResponseUserObject = (() throws -> User?) -> ()
 typealias APIResponsePhotosArray = (() throws ->[Photo]) -> ()
 typealias APIResponseUsersDictionary = (() throws -> [Int : User]) -> ()
 typealias APIResponseImage = (() throws -> UIImage?) -> ()
@@ -24,14 +22,19 @@ public class APIService {
         return networkStat.isReachable
     }
     
+    // MARK: - fetch Albums from API
     func fetchAlbums(requestString: String, completionHandler: @escaping APIResponseAlbumArray) {
-        let requestURL = Constants.URLs.baseURL + requestString
+        if !isInternetAvailable() {
+            completionHandler({ throw AppError.noNetworkConnection })
+        }
+        
+        let requestURL = Constants.URLs.BASEURL + requestString
         AFService().makeGetRequest(endpoint: requestURL, params: nil, completionHandler: { responseStr, error in
             if let err = error {
-                DDLogError("Fetch Albums Failed: \(err.localizedDescription)")
+                DDLogError("❌ Fetch Albums Failed: \(err.localizedDescription)")
                 completionHandler({ throw err })
             } else {
-//                DDLogInfo("Fetch Albums Completed \(requestString)")
+                DDLogInfo("✅ Fetch Albums Completed \(requestString)")
                 guard let response = responseStr else {
                     completionHandler({ throw AppError.invalidResponse })
                     return
@@ -46,7 +49,6 @@ public class APIService {
                             completionHandler({ throw AppError.invalidResponse })
                         }
                     }
-//                    completionHandler({ throw AppError.invalidResponse })
                     completionHandler({ return albumList })
                 } else {
                     completionHandler({ throw AppError.serializationFailed })
@@ -56,14 +58,19 @@ public class APIService {
         })
     }
     
+    // MARK: - fetch user for given Albums from API
     func fetchUsers(requestString: String, completionHandler: @escaping APIResponseUsersDictionary) {
-        let requestURL = Constants.URLs.baseURL + requestString
+        if !isInternetAvailable() {
+            completionHandler({ throw AppError.noNetworkConnection })
+        }
+        
+        let requestURL = Constants.URLs.BASEURL + requestString
         AFService().makeGetRequest(endpoint: requestURL, params: nil, completionHandler: { responseStr, error in
             if let err = error {
-                DDLogError("Fetch Users Failed \(err.localizedDescription)")
+                DDLogError("❌ Fetch Artists Failed \(err.localizedDescription)")
                 completionHandler({ throw err })
             } else {
-//                DDLogInfo("Fetch Users Completed")
+                DDLogInfo("✅ Fetch Artists Completed")
                 guard let response = responseStr else {
                     completionHandler({ throw AppError.invalidResponse })
                     return
@@ -87,13 +94,18 @@ public class APIService {
         })
     }
     
+    // MARK: - fetch Photo data for album from API
     func fetchPhotosForAlbum(requestURL: String, completionHandler: @escaping APIResponsePhotosArray) {
+        if !isInternetAvailable() {
+            completionHandler({ throw AppError.noNetworkConnection })
+        }
+        
         AFService().makeGetRequest(endpoint: requestURL, params: nil, completionHandler: { responseStr, error in
             if let err = error {
-                DDLogError("Fetch Photos for album Failed \(err.localizedDescription)")
+                DDLogError("❌ Fetch Photos for album Failed \(err.localizedDescription)")
                 completionHandler({ throw err })
             } else {
-//                DDLogInfo("Fetch Photos for album \(userId) Completed")
+                DDLogInfo("✅ Fetch Photos for album Completed")
                 guard let response = responseStr else {
                     completionHandler({ throw AppError.invalidResponse })
                     return
@@ -117,12 +129,18 @@ public class APIService {
         })
     }
     
+    // MARK: - fetch image for given URL
     func fetchImageFromURL(requestURL: String, completionHandler: @escaping APIResponseImage) {
+        if !isInternetAvailable() {
+            completionHandler({ throw AppError.noNetworkConnection })
+        }
+        
         AFService().downloadImage(imageURL: requestURL) { responseImage, error in
             if let err = error {
-                DDLogError("Fetch Image Failed \(err.localizedDescription)")
+                DDLogError("❌ Fetch Image Failed \(err.localizedDescription)")
                 completionHandler({ throw err })
             } else {
+                DDLogInfo("✅ Fetch Image Completed")
                 if let image = responseImage {
                     completionHandler({ return image })
                 } else {

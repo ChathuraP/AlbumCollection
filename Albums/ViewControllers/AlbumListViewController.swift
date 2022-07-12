@@ -30,6 +30,7 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
     private var downloadBufffer: Int = 5
     private var downloadOffset: Int = 19
     private var lastFetchBlockSize: Int = 1
+    private var apiFailed: Bool = false
     private var downloadInprogress: Bool = false {
         didSet {
             self.showDownloadIncicator(self.downloadInprogress)
@@ -55,13 +56,13 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
         artists.removeAll()
         tempAlbums.removeAll()
         firstDownload = true
+        apiFailed = false
         lastFetchBlockSize = 1
         getAlbums(albumIndex: 0, offset: downloadOffset)
     }
 
     // MARK: - LoadingViewDelegate function
     func retryButtonTapped() { // triggers from Loading Error screen re-try button
-        self.loadingIndicatorView.dismiss(animated: true)
         self.reloadAlbums(nil)
     }
 
@@ -78,7 +79,7 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
     }
     
     private func showDownloadIncicator(_ show: Bool) {
-        if firstDownload { // show donload progress only for the first download session since rest are prefetch
+        if firstDownload { // show donload progress only for the first album download session since rest are prefetch
             DispatchQueue.main.async {
                 if show {
                     if self.loadingIndicatorView.viewIfLoaded?.window == nil {
@@ -89,10 +90,15 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
                     }
                 } else {
                     if self.loadingIndicatorView.viewIfLoaded?.window != nil {
-                        if !self.loadingIndicatorView.errorOccurred {
-                            self.loadingIndicatorView.dismiss(animated: true)
+                        if self.apiFailed {
+                            self.loadingIndicatorView.errorOccurred = true
+                            self.firstDownload = true
+                        } else {
+                            self.firstDownload = false
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                self.loadingIndicatorView.dismiss(animated: true)
+                            }
                         }
-                        self.firstDownload = false
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                             self.refreshControl.endRefreshing()
                         }
@@ -182,7 +188,7 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
             return
         }
         downloadInprogress = true
-        let requestString: String = Constants.APIs.albumRange + self.generateRequestStringForAlbums(start: albumIndex, offset: offset)
+        let requestString: String = Constants.APIs.ALBUM_RANGE + self.generateRequestStringForAlbums(start: albumIndex, offset: offset)
         DispatchQueue.global(qos: .default).async {
             APIService().fetchAlbums(requestString: requestString, completionHandler: { [self] (getResponse:  () throws -> [Album]) in
                 do {
@@ -191,7 +197,7 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
                     self.updateNewAlbums(albums)
                 } catch let error {
                     DDLogError("func:getAlbums #\(error)")
-                    self.loadingIndicatorView.errorOccurred = true
+                    self.apiFailed = true
                     self.downloadInprogress = false
                 }
             })
@@ -203,7 +209,7 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
             return
         }
         downloadInprogress = true
-        let requestString: String = Constants.APIs.userRange + self.generateRequestStringForArtists(artists)
+        let requestString: String = Constants.APIs.USER_RANGE + self.generateRequestStringForArtists(artists)
         DispatchQueue.global(qos: .default).async {
             APIService().fetchUsers(requestString: requestString, completionHandler: { [self] (getResponse:  () throws -> [Int : User]) in
                 do {
@@ -212,7 +218,6 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
                     self.downloadInprogress = false
                 } catch let error {
                     DDLogError("func:getArtists #\(error)")
-                    self.loadingIndicatorView.errorOccurred = true
                     self.downloadInprogress = false
                 }
             })

@@ -15,20 +15,20 @@ public struct Constants {
     }
     
     public struct URLs {
-        static let baseURL = "https://jsonplaceholder.typicode.com"
+        static let BASEURL = "https://jsonplaceholder.typicode.com"
     }
     
     public struct APIs {
-        static let albums = "/albums"
-        static let albumId = "/albums?id="
-        static let albumRange = "/albums?"
+        static let ALBUMS = "/albums"
+        static let ALBUM_ID = "/albums?id="
+        static let ALBUM_RANGE = "/albums?"
         
-        static let users = "/users"
-        static let userId = "/users?id="
-        static let userRange = "/users?"
+        static let USERS = "/users"
+        static let USER_ID = "/users?id="
+        static let USER_RANGE = "/users?"
         
-        static let photos = "/photos"
-        static let photoAlbum = "/photos?albumId="
+        static let PHOTOS = "/photos"
+        static let PHOTO_ALBUM = "/photos?albumId="
     }
     
 }
@@ -38,6 +38,7 @@ enum AppError: Error, CustomStringConvertible {
     case fetchArtistFailed
     case serializationFailed
     case invalidResponse
+    case noNetworkConnection
     case unexpectedError(NSError)
     
     var description: String {
@@ -50,6 +51,8 @@ enum AppError: Error, CustomStringConvertible {
             return "Error: read Notifications JSONSerialization error"
         case .invalidResponse:
             return "Error: Unable to read from response JSON"
+        case .noNetworkConnection:
+            return "Error: No network available"
         case .unexpectedError(let NSError):
             return NSError.localizedDescription
         }
