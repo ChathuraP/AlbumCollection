@@ -36,5 +36,6 @@ This project is a sample for downloading a list of albums and artists from the `
 * The device orientation is portrait.
 * While downloading resources, the user does not cause the app to go to the background.
 * The user does not receive or answer calls while the app is used.
+* Unit test coverage is not completed.
 
 
