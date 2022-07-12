@@ -37,5 +37,7 @@ This project is a sample for downloading a list of albums and artists from the `
 * While downloading resources, the user does not cause the app to go to the background.
 * The user does not receive or answer calls while the app is used.
 * Unit test coverage is not completed.
+* Albums and respective users are prefetched as blocks while the user scrolls.
+* Thumbnail images are simultaneously downloaded and will be cached for future use.
 
 
