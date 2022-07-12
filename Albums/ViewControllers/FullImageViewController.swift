@@ -8,6 +8,7 @@
 import UIKit
 import ImageScrollView
 import CocoaLumberjack
+import Alamofire
 
 class FullImageViewController: UIViewController {
     
@@ -42,16 +43,30 @@ class FullImageViewController: UIViewController {
         }
     }
     
+    private func showErrorPopup() {
+        let alert = UIAlertController(title: "Opps!", message: "Image not available, Please retry again!", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler:{_ in
+            DispatchQueue.main.async(execute: {
+                self.navigationController?.popViewController(animated: true)
+            })
+        }))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
     private func downloadImageFormURL(url: String){
         APIService().fetchImageFromURL(requestURL: url) { [self] (getResponse:  () throws -> UIImage?) in
             do {
                 if let image = try getResponse() {
                     self.imageScrollView.display(image: image)
                 } else {
-                    // show error
+                    DDLogError("func:downloadImageFormURL")
+                    self.imageScrollView.display(image: UIImage(named: "no-image")!)
+                    self.showErrorPopup()
                 }
             } catch let error {
                 DDLogError("func:downloadImageFormURL #\(error)")
+                self.imageScrollView.display(image: UIImage(named: "no-image")!)
+                self.showErrorPopup()
             }
         }
     }

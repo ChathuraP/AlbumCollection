@@ -15,7 +15,7 @@ class PhotoThumbnailViewCell: UICollectionViewCell {
         didSet {
             DispatchQueue.main.async {
                 if let myPhoto = self.photoData {
-                    self.thumbnailView.loadImageFromCache(with: myPhoto.thumbnailUrl)
+                    self.thumbnailView.loadImageFromCache(with: myPhoto.thumbnailUrl )
                 }
             }
         }

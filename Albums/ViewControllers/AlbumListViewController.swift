@@ -91,7 +91,7 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
                         self.loadingIndicatorView.delegate = self
                         let navi = UINavigationController(rootViewController: self.loadingIndicatorView)
                         navi.modalPresentationStyle = .fullScreen
-                        self.present(navi, animated: true, completion: nil)
+                        self.present(navi, animated: false, completion: nil)
                     }
                 } else {
                     if self.loadingIndicatorView.viewIfLoaded?.window != nil {

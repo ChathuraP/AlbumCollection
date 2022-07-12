@@ -123,7 +123,7 @@ public class APIService {
                 DDLogError("Fetch Image Failed \(err.localizedDescription)")
                 completionHandler({ throw err })
             } else {
-                if let image = responseImage as? UIImage {
+                if let image = responseImage {
                     completionHandler({ return image })
                 } else {
                     completionHandler({ throw AppError.invalidResponse })

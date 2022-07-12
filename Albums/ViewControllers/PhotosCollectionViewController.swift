@@ -8,10 +8,16 @@
 import UIKit
 import CocoaLumberjack
 
-class PhotosCollectionViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
+class PhotosCollectionViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout, LoadingViewDelegate {
 
     var album: Album? = nil
     
+    private var loadingIndicatorView = LoadingViewController()
+    private var downloadInprogress: Bool = false {
+        didSet {
+            self.showDownloadIncicator(self.downloadInprogress)
+        }
+    }
     private var photos: [Photo] = [] {
         didSet {
             if self.photos.count > 0 {
@@ -22,10 +28,7 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        if let photoAlbum = album,
-            photoAlbum.id != -1 {
-            self.getPhotos(albumId: photoAlbum.id)
-        }
+        retryButtonTapped()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -39,9 +42,41 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         collectionViewLayout.invalidateLayout()
     }
+    
+    func retryButtonTapped() {
+        if let photoAlbum = album,
+            photoAlbum.id != -1 {
+            self.getPhotos(albumId: photoAlbum.id)
+        }
+    }
+    
+    private func showDownloadIncicator(_ show: Bool) {
+        DispatchQueue.main.async {
+            if show {
+                if self.loadingIndicatorView.viewIfLoaded?.window == nil {
+                    self.loadingIndicatorView.delegate = self
+                    let navi = UINavigationController(rootViewController: self.loadingIndicatorView)
+                    navi.modalPresentationStyle = .fullScreen
+                    self.present(navi, animated: false, completion: nil)
+                }
+            } else {
+                if self.loadingIndicatorView.viewIfLoaded?.window != nil {
+                    if !self.loadingIndicatorView.errorOccurred {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            self.loadingIndicatorView.dismiss(animated: true)
+                        }
+                    }
+                }
+            }
+        }
+    }
         
     // MARK: - API Network calls
     private func getPhotos(albumId: Int) {
+        if downloadInprogress {
+            return
+        }
+        downloadInprogress = true
         if let selectedAlbum = self.album {
             let requestURL: String = Constants.URLs.baseURL + Constants.APIs.photoAlbum + String(selectedAlbum.id)
             DispatchQueue.global(qos: .userInitiated).async {
@@ -49,9 +84,11 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
                     do {
                         let photos = try getResponse()
                         self.photos = photos
+                        self.downloadInprogress = false
                     } catch let error {
-                        //                    self.reloadAlbumsView.isHidden = false
                         DDLogError("func:getPhotos #\(error)")
+                        self.loadingIndicatorView.errorOccurred = true
+                        self.downloadInprogress = false
                     }
                 })
             }
