@@ -11,11 +11,10 @@ import CocoaLumberjack
 class AlbumListViewController: UIViewController, LoadingViewDelegate {
 
     @IBOutlet weak var albumTableView: UITableView!
+    
     private let refreshControl = UIRefreshControl()
     private var loadingIndicatorView = LoadingViewController()
-//    private var errorOccurredView = ErrorViewController()
     private var firstDownload: Bool = true
-    
     private var albums: [Album] = [] {
         didSet {
             DispatchQueue.main.async {
@@ -27,7 +26,6 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
     }
     private var artists: [Int : User] = [:]
     private var tempAlbums: [Album] = []
-    
     private var lastAlbumId: Int = 0
     private var downloadBufffer: Int = 5
     private var downloadOffset: Int = 19
@@ -52,7 +50,7 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
     }
     
     // MARK: - User Actions
-    @IBAction func reloadAlbums(_ sender: UIButton?) {
+    @IBAction func reloadAlbums(_ sender: UIButton?) { // Reload Album data from begining
         albums.removeAll()
         artists.removeAll()
         tempAlbums.removeAll()
@@ -60,13 +58,9 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
         lastFetchBlockSize = 1
         getAlbums(albumIndex: 0, offset: downloadOffset)
     }
-    
-    @IBAction func testBtnPressed(_ sender: UIButton) {
-
-    }
 
     // MARK: - LoadingViewDelegate function
-    func retryButtonTapped() {
+    func retryButtonTapped() { // triggers from Loading Error screen re-try button
         self.loadingIndicatorView.dismiss(animated: true)
         self.reloadAlbums(nil)
     }
@@ -112,7 +106,6 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
         tempAlbums = albums
         fetchArtistforAlbums(albums)
         lastFetchBlockSize = albums.count
-        print("lastFetchBlockSize:\(lastFetchBlockSize)")
     }
     
     private func fetchArtistforAlbums(_ albums: [Album]) {
@@ -152,7 +145,10 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
         tempAlbums.removeAll()
     }
     
-    private func generateRequestStringForAlbums(start: Int, offset: Int) -> String {
+    internal func generateRequestStringForAlbums(start: Int, offset: Int) -> String {
+        if start < 0 || offset < 0 {
+            return ""
+        }
         let end = start + offset
         var requestString: String = ""
         for id in (start ... end) {
@@ -162,11 +158,13 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
                 requestString += "&id=\(id)"
             }
         }
-        print("Downloding albums:\(requestString)")
         return requestString
     }
     
-    private func generateRequestStringForArtists(_ artists:[Int]) -> String {
+    internal func generateRequestStringForArtists(_ artists:[Int]) -> String {
+        if artists.contains(where: { $0 < 0 }) {
+            return ""
+        }
         var requestString: String = ""
         for id in artists {
             if requestString.isEmpty {
@@ -175,7 +173,6 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
                 requestString += "&id=\(id)"
             }
         }
-        print("Downloding artists:\(requestString)")
         return requestString
     }
     
