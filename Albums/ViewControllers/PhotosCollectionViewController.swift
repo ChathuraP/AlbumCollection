@@ -45,7 +45,7 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
         if let selectedAlbum = self.album {
             let requestURL: String = Constants.URLs.baseURL + Constants.APIs.photoAlbum + String(selectedAlbum.id)
             DispatchQueue.global(qos: .userInitiated).async {
-                APIService.shared.fetchPhotosForAlbum(requestURL: requestURL, completionHandler: { [self] (getResponse:  () throws -> [Photo]) in
+                APIService().fetchPhotosForAlbum(requestURL: requestURL, completionHandler: { [self] (getResponse:  () throws -> [Photo]) in
                     do {
                         let photos = try getResponse()
                         self.photos = photos

@@ -8,21 +8,19 @@
 import UIKit
 import CocoaLumberjack
 
-class AlbumListViewController: UIViewController {
-    
+class AlbumListViewController: UIViewController, LoadingViewDelegate {
+
     @IBOutlet weak var albumTableView: UITableView!
-    @IBOutlet weak var reloadAlbumsView: UIView!
     private let refreshControl = UIRefreshControl()
+    private var loadingIndicatorView = LoadingViewController()
+//    private var errorOccurredView = ErrorViewController()
+    private var firstDownload: Bool = true
     
     private var albums: [Album] = [] {
         didSet {
             DispatchQueue.main.async {
                 if self.albums.count > 0 {
-                    self.reloadAlbumsView.isHidden = true
-                    self.refreshControl.endRefreshing()
                     self.albumTableView.reloadData()
-                } else {
-                    self.reloadAlbumsView.isHidden = false
                 }
             }
         }
@@ -34,15 +32,18 @@ class AlbumListViewController: UIViewController {
     private var downloadBufffer: Int = 5
     private var downloadOffset: Int = 19
     private var lastFetchBlockSize: Int = 1
-    private var downloadAlbumInprogress: Bool = false
-    private var downloadArtistsInprogress: Bool = false
+    private var downloadInprogress: Bool = false {
+        didSet {
+            self.showDownloadIncicator(self.downloadInprogress)
+        }
+    }
     
     // MARK: - LifeCycle functions
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.addRefreshController()
-        self.getAlbums(albumIndex: 0, offset: downloadOffset)
+        self.reloadAlbums(nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -51,16 +52,23 @@ class AlbumListViewController: UIViewController {
     }
     
     // MARK: - User Actions
-    @IBAction func reloadAlbums(_ sender: UIButton) {
-        self.albums.removeAll()
-        self.artists.removeAll()
-        self.tempAlbums.removeAll()
+    @IBAction func reloadAlbums(_ sender: UIButton?) {
+        albums.removeAll()
+        artists.removeAll()
+        tempAlbums.removeAll()
+        firstDownload = true
         lastFetchBlockSize = 1
-        self.getAlbums(albumIndex: 0, offset: downloadOffset)
+        getAlbums(albumIndex: 0, offset: downloadOffset)
     }
     
     @IBAction func testBtnPressed(_ sender: UIButton) {
 
+    }
+
+    // MARK: - LoadingViewDelegate function
+    func retryButtonTapped() {
+        self.loadingIndicatorView.dismiss(animated: true)
+        self.reloadAlbums(nil)
     }
 
     // MARK: - Private functions
@@ -73,6 +81,31 @@ class AlbumListViewController: UIViewController {
         refreshControl.tintColor = UIColor.systemYellow
         refreshControl.addTarget(self, action: #selector(self.reloadAlbums(_:)), for: .valueChanged)
         albumTableView.addSubview(refreshControl)
+    }
+    
+    private func showDownloadIncicator(_ show: Bool) {
+        if firstDownload { // show donload progress only for the first download session since rest are prefetch
+            DispatchQueue.main.async {
+                if show {
+                    if self.loadingIndicatorView.viewIfLoaded?.window == nil {
+                        self.loadingIndicatorView.delegate = self
+                        let navi = UINavigationController(rootViewController: self.loadingIndicatorView)
+                        navi.modalPresentationStyle = .fullScreen
+                        self.present(navi, animated: true, completion: nil)
+                    }
+                } else {
+                    if self.loadingIndicatorView.viewIfLoaded?.window != nil {
+                        if !self.loadingIndicatorView.errorOccurred {
+                            self.loadingIndicatorView.dismiss(animated: true)
+                        }
+                        self.firstDownload = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            self.refreshControl.endRefreshing()
+                        }
+                    }
+                }
+            }
+        }
     }
     
     private func updateNewAlbums(_ albums: [Album]) {
@@ -110,7 +143,11 @@ class AlbumListViewController: UIViewController {
             }
             newAlbums.append(tempAlbum)
         }
-        albums = albums + newAlbums // append album list with new albums
+        if albums.count > 0 {
+            albums = albums + newAlbums // append album list with new albums
+        } else {
+            albums = newAlbums // add new albums
+        }
         lastAlbumId = albums.last?.id ?? 0
         tempAlbums.removeAll()
     }
@@ -144,39 +181,42 @@ class AlbumListViewController: UIViewController {
     
     // MARK: - API Network calls
     private func getAlbums(albumIndex: Int, offset: Int) {
-        if downloadAlbumInprogress {
+        if downloadInprogress {
             return
         }
-        downloadAlbumInprogress = true
+        downloadInprogress = true
         let requestString: String = Constants.APIs.albumRange + self.generateRequestStringForAlbums(start: albumIndex, offset: offset)
         DispatchQueue.global(qos: .default).async {
-            APIService.shared.fetchAlbums(requestString: requestString, completionHandler: { [self] (getResponse:  () throws -> [Album]) in
+            APIService().fetchAlbums(requestString: requestString, completionHandler: { [self] (getResponse:  () throws -> [Album]) in
                 do {
                     let albums = try getResponse()
+                    self.downloadInprogress = false
                     self.updateNewAlbums(albums)
-                    self.downloadAlbumInprogress = false
                 } catch let error {
-                    //                    self.reloadAlbumsView.isHidden = false
                     DDLogError("func:getAlbums #\(error)")
+                    self.loadingIndicatorView.errorOccurred = true
+                    self.downloadInprogress = false
                 }
             })
         }
     }
     
     private func getArtists(artists: [Int]) {
-        if downloadArtistsInprogress {
+        if downloadInprogress {
             return
         }
-        downloadArtistsInprogress = true
+        downloadInprogress = true
         let requestString: String = Constants.APIs.userRange + self.generateRequestStringForArtists(artists)
         DispatchQueue.global(qos: .default).async {
-            APIService.shared.fetchUsers(requestString: requestString, completionHandler: { [self] (getResponse:  () throws -> [Int : User]) in
+            APIService().fetchUsers(requestString: requestString, completionHandler: { [self] (getResponse:  () throws -> [Int : User]) in
                 do {
                     let artists = try getResponse()
                     self.updateAlbumsWith(users: artists)
-                    downloadArtistsInprogress = false
+                    self.downloadInprogress = false
                 } catch let error {
                     DDLogError("func:getArtists #\(error)")
+                    self.loadingIndicatorView.errorOccurred = true
+                    self.downloadInprogress = false
                 }
             })
         }

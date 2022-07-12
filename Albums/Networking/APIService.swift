@@ -18,7 +18,6 @@ typealias APIResponseUsersDictionary = (() throws -> [Int : User]) -> ()
 typealias APIResponseImage = (() throws -> UIImage?) -> ()
 
 public class APIService {
-    public static let shared = APIService()
     private let networkStat = NetworkReachabilityManager()!
     
     private func isInternetAvailable() -> Bool {
@@ -47,6 +46,7 @@ public class APIService {
                             completionHandler({ throw AppError.invalidResponse })
                         }
                     }
+//                    completionHandler({ throw AppError.invalidResponse })
                     completionHandler({ return albumList })
                 } else {
                     completionHandler({ throw AppError.serializationFailed })
