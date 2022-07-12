@@ -16,22 +16,11 @@ class AlbumCell: UITableViewCell {
         didSet {
             DispatchQueue.main.async {
                 if let myAlbum = self.album {
-                    self.titleLabel.text = "\(myAlbum.id) " + myAlbum.title.capitalizingFirstLetter()
+                    self.titleLabel.text = myAlbum.title.capitalizingFirstLetter()
                     self.artistLabel.text = myAlbum.artist?.name
                 }
             }
         }
     }
-    
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
-    }
-    
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-        
-        // Configure the view for the selected state
-    }
-    
+
 }

@@ -9,13 +9,13 @@ import UIKit
 import CocoaLumberjack
 
 class PhotosCollectionViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout, LoadingViewDelegate {
-
+    
     var album: Album? = nil
     
     private var loadingIndicatorView = LoadingViewController()
-    private var downloadInprogress: Bool = false {
+    private var downloadInProgress: Bool = false {
         didSet {
-            self.showDownloadIncicator(self.downloadInprogress)
+            self.showDownloadIndicator(self.downloadInProgress)
         }
     }
     private var photos: [Photo] = [] {
@@ -27,6 +27,10 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
     }
     private var apiFailed: Bool = false
     
+    private let IMAGE_FULLSCREEN_SEGUE = "imageFullscreenSegue"
+    private let IMAGE_THUMB_CELL_IDENTIFIER = "imageThumbCellIdentifier"
+    
+    // MARK: - LifeCycle functions
     override func viewDidLoad() {
         super.viewDidLoad()
         retryButtonTapped()
@@ -44,15 +48,20 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
         collectionViewLayout.invalidateLayout()
     }
     
+    // MARK: - Private functions
+    
+    /// Restart the download of photo data from the selected album.
     func retryButtonTapped() {
         apiFailed = false
         if let photoAlbum = album,
-            photoAlbum.id != -1 {
+           photoAlbum.id != -1 {
             self.getPhotos(albumId: photoAlbum.id)
         }
     }
     
-    private func showDownloadIncicator(_ show: Bool) {
+    /// Show loading inProgress and Error re-try screens
+    /// - Parameter show: Indicates download in progress or completed
+    private func showDownloadIndicator(_ show: Bool) {
         DispatchQueue.main.async {
             if show {
                 if self.loadingIndicatorView.viewIfLoaded?.window == nil {
@@ -74,13 +83,16 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
             }
         }
     }
-        
+    
     // MARK: - API Network calls
+    
+    /// Download photo data from API
+    /// - Parameter albumId: AlbumId of the photo data belongs to
     private func getPhotos(albumId: Int) {
-        if downloadInprogress {
+        if downloadInProgress {
             return
         }
-        downloadInprogress = true
+        downloadInProgress = true
         if let selectedAlbum = self.album {
             let requestURL: String = Constants.URLs.BASEURL + Constants.APIs.PHOTO_ALBUM + String(selectedAlbum.id)
             DispatchQueue.global(qos: .userInitiated).async {
@@ -89,46 +101,46 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
                         let photos = try getResponse()
                         if photos.count > 0 {
                             self.photos = photos
-                            self.downloadInprogress = false
+                            self.downloadInProgress = false
                         } else {
+                            DDLogError("func:getPhotos returns empty")
                             self.apiFailed = true
-                            self.downloadInprogress = false
+                            self.downloadInProgress = false
                         }
                     } catch let error {
                         DDLogError("func:getPhotos #\(error)")
                         self.apiFailed = true
-                        self.downloadInprogress = false
+                        self.downloadInProgress = false
                     }
                 })
             }
         }
     }
-
+    
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "imageFullscreenSegue",
+        if segue.identifier == IMAGE_FULLSCREEN_SEGUE,
            let index = sender as? Int,
-           let vc = segue.destination as? FullImageViewController,
-           let selectedPhoto = self.photos[index] as? Photo {
-            vc.photoData = selectedPhoto
+           let vc = segue.destination as? FullImageViewController {
+            vc.photoData = self.photos[index]
         }
     }
 }
 
 extension PhotosCollectionViewController {
-
+    
     // MARK: UICollectionViewDataSource
-
+    
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
-
+    
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return photos.count
     }
-
+    
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageThumbCellIdentifier", for: indexPath) as? PhotoThumbnailViewCell, self.photos.count > 0 {
+        if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: IMAGE_THUMB_CELL_IDENTIFIER, for: indexPath) as? PhotoThumbnailViewCell, self.photos.count > 0 {
             cell.photoData = photos[indexPath.row]
             return cell
         } else {
@@ -137,9 +149,9 @@ extension PhotosCollectionViewController {
     }
     
     // MARK: UICollectionViewDelegate
-
+    
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        performSegue(withIdentifier: "imageFullscreenSegue", sender: indexPath.row)
+        performSegue(withIdentifier: IMAGE_FULLSCREEN_SEGUE, sender: indexPath.row)
     }
     
     // MARK: UICollectionViewDelegateFlowLayout

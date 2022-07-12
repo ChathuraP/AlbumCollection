@@ -150,11 +150,11 @@
                                     <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                     <subviews>
-                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="HiP-cu-eag">
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="imageInprogress" translatesAutoresizingMaskIntoConstraints="NO" id="HiP-cu-eag">
                                             <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
                                         </imageView>
                                     </subviews>
-                                    <color key="backgroundColor" red="0.97472208739999999" green="0.81083160639999996" blue="0.25754219290000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <constraints>
                                         <constraint firstItem="HiP-cu-eag" firstAttribute="top" secondItem="wdh-qV-tAJ" secondAttribute="top" id="5pj-ke-QPG"/>
                                         <constraint firstItem="HiP-cu-eag" firstAttribute="leading" secondItem="wdh-qV-tAJ" secondAttribute="leading" id="UYL-XL-vAd"/>
@@ -245,6 +245,7 @@
     </scenes>
     <resources>
         <image name="disclosureIcon" width="75" height="75"/>
+        <image name="imageInprogress" width="215" height="215"/>
         <image name="title_img" width="174" height="44"/>
     </resources>
 </document>

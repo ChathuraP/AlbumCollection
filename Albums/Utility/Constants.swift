@@ -7,11 +7,14 @@
 
 import Foundation
 
-
 public struct Constants {
     
     public struct Text {
         static let PULLTOREFRESH = "Pull to refresh"
+        static let ALERT_TITLE_OPPS = "Opps!"
+        static let ALERT_MSG_NO_IMAGE = "Image not available, Please retry again!"
+        static let ALERT_OK_BTN = "OK"
+        
     }
     
     public struct URLs {

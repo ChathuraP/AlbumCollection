@@ -8,7 +8,6 @@
 import UIKit
 import ImageScrollView
 import CocoaLumberjack
-import Alamofire
 
 class FullImageViewController: UIViewController {
     
@@ -30,7 +29,9 @@ class FullImageViewController: UIViewController {
             }
         }
     }
-
+    
+    // MARK: - LifeCycle functions
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.imageScrollView.setup()
@@ -43,9 +44,12 @@ class FullImageViewController: UIViewController {
         }
     }
     
+    // MARK: - Private functions
+    
+    /// Shows alert message to the use, go to previous screen upon user tap OK
     private func showErrorPopup() {
-        let alert = UIAlertController(title: "Opps!", message: "Image not available, Please retry again!", preferredStyle: UIAlertController.Style.alert)
-        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler:{_ in
+        let alert = UIAlertController(title: Constants.Text.ALERT_TITLE_OPPS, message: Constants.Text.ALERT_MSG_NO_IMAGE, preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: Constants.Text.ALERT_OK_BTN, style: UIAlertAction.Style.default, handler: {_ in
             DispatchQueue.main.async(execute: {
                 self.navigationController?.popViewController(animated: true)
             })
@@ -53,13 +57,17 @@ class FullImageViewController: UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    // MARK: - API Network calls
+    
+    /// Download full size image from API
+    /// - Parameter url: URL for full size image
     private func downloadImageFormURL(url: String){
         APIService().fetchImageFromURL(requestURL: url) { [self] (getResponse:  () throws -> UIImage?) in
             do {
                 if let image = try getResponse() {
                     self.imageScrollView.display(image: image)
                 } else {
-                    DDLogError("func:downloadImageFormURL")
+                    DDLogError("func:downloadImageFormURL failed")
                     self.imageScrollView.display(image: UIImage(named: "no-image")!)
                     self.showErrorPopup()
                 }
@@ -70,5 +78,5 @@ class FullImageViewController: UIViewController {
             }
         }
     }
-
+    
 }

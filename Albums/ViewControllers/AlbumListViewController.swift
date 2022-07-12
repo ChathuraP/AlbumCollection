@@ -9,7 +9,7 @@ import UIKit
 import CocoaLumberjack
 
 class AlbumListViewController: UIViewController, LoadingViewDelegate {
-
+    
     @IBOutlet weak var albumTableView: UITableView!
     
     private let refreshControl = UIRefreshControl()
@@ -25,15 +25,20 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
         }
     }
     private var artists: [Int : User] = [:]
+    
+    private let PHOTO_GALLERY_SEGUE = "photoGallerySegue"
+    private let ALBUM_CELL_IDENTIFIER = "AlbumCellIdentifier"
+    
+    // used for creating pagination on album retrieval
     private var tempAlbums: [Album] = []
     private var lastAlbumId: Int = 0
-    private var downloadBufffer: Int = 5
+    private var downloadBuffer: Int = 5
     private var downloadOffset: Int = 19
     private var lastFetchBlockSize: Int = 1
     private var apiFailed: Bool = false
-    private var downloadInprogress: Bool = false {
+    private var downloadInProgress: Bool = false {
         didSet {
-            self.showDownloadIncicator(self.downloadInprogress)
+            self.showDownloadIndicator(self.downloadInProgress)
         }
     }
     
@@ -51,7 +56,10 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
     }
     
     // MARK: - User Actions
-    @IBAction func reloadAlbums(_ sender: UIButton?) { // Reload Album data from begining
+    
+    /// Reload Album data from beginning
+    /// - Parameter sender: UIButton or nil
+    @IBAction func reloadAlbums(_ sender: UIButton?) {
         albums.removeAll()
         artists.removeAll()
         tempAlbums.removeAll()
@@ -62,11 +70,15 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
     }
 
     // MARK: - LoadingViewDelegate function
-    func retryButtonTapped() { // triggers from Loading Error screen re-try button
+    
+    /// Triggers from Loading Error screen re-try button
+    func retryButtonTapped() {
         self.reloadAlbums(nil)
     }
 
     // MARK: - Private functions
+    
+    /// Add pull to refresh functionality to the album list
     private func addRefreshController() {
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.boldSystemFont(ofSize: 20),
@@ -78,8 +90,11 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
         albumTableView.addSubview(refreshControl)
     }
     
-    private func showDownloadIncicator(_ show: Bool) {
-        if firstDownload { // show donload progress only for the first album download session since rest are prefetch
+    
+    /// Show loading inProgress and Error re-try screens
+    /// - Parameter show: Indicates download in progress or completed
+    private func showDownloadIndicator(_ show: Bool) {
+        if firstDownload { // show download progress only for the first album download session, since rest are pre-fetch
             DispatchQueue.main.async {
                 if show {
                     if self.loadingIndicatorView.viewIfLoaded?.window == nil {
@@ -108,13 +123,12 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
         }
     }
     
-    private func updateNewAlbums(_ albums: [Album]) {
-        tempAlbums = albums
-        fetchArtistforAlbums(albums)
-        lastFetchBlockSize = albums.count
-    }
     
-    private func fetchArtistforAlbums(_ albums: [Album]) {
+    /// Download artists data for already downloaded albums
+    /// - Parameter albums: Downloaded albums
+    private func fetchArtistForAlbums(_ albums: [Album]) {
+        tempAlbums = albums
+        lastFetchBlockSize = albums.count
         var requiredArtists: Set<Int> = [] // list to collect unique artist IDs to fetch artists
         for album in albums {
             if album.artist == nil && artists[album.userId] == nil {
@@ -130,6 +144,9 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
         }
     }
     
+    
+    /// Update the existing albums with respective artists
+    /// - Parameter users: Downloaded artists
     private func updateAlbumsWith(users: [Int : User]) {
         if users.count > 0 {
             artists.merge(users){(_, second) in second}
@@ -142,15 +159,19 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
             }
             newAlbums.append(tempAlbum)
         }
-        if albums.count > 0 {
+        if newAlbums.count > 0 {
             albums = albums + newAlbums // append album list with new albums
-        } else {
-            albums = newAlbums // add new albums
         }
         lastAlbumId = albums.last?.id ?? 0
         tempAlbums.removeAll()
     }
     
+    
+    /// Generate request string for required albums
+    /// - Parameters:
+    ///   - start: Starting album id
+    ///   - offset: How many albums needs to download
+    /// - Returns: String to use for GET call parameters. ex: "id=0&id=1&id=2&id=3&id=4&id=5"
     internal func generateRequestStringForAlbums(start: Int, offset: Int) -> String {
         if start < 0 || offset < 0 {
             return ""
@@ -167,7 +188,11 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
         return requestString
     }
     
-    internal func generateRequestStringForArtists(_ artists:[Int]) -> String {
+    
+    /// Generate request string for required artists
+    /// - Parameter artists: Integer array of artist ids
+    /// - Returns: String to use for GET call parameters. ex: "id=3&id=4&id=5&id=6"
+    internal func generateRequestStringForArtists(_ artists: [Int]) -> String {
         if artists.contains(where: { $0 < 0 }) {
             return ""
         }
@@ -183,42 +208,50 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
     }
     
     // MARK: - API Network calls
+    
+    /// Download albums from API
+    /// - Parameters:
+    ///   - albumIndex: Starting album id
+    ///   - offset: How many albums needs to download
     private func getAlbums(albumIndex: Int, offset: Int) {
-        if downloadInprogress {
+        if downloadInProgress {
             return
         }
-        downloadInprogress = true
+        downloadInProgress = true
         let requestString: String = Constants.APIs.ALBUM_RANGE + self.generateRequestStringForAlbums(start: albumIndex, offset: offset)
         DispatchQueue.global(qos: .default).async {
             APIService().fetchAlbums(requestString: requestString, completionHandler: { [self] (getResponse:  () throws -> [Album]) in
                 do {
                     let albums = try getResponse()
-                    self.downloadInprogress = false
-                    self.updateNewAlbums(albums)
+                    self.downloadInProgress = false
+                    self.fetchArtistForAlbums(albums)
                 } catch let error {
                     DDLogError("func:getAlbums #\(error)")
                     self.apiFailed = true
-                    self.downloadInprogress = false
+                    self.downloadInProgress = false
                 }
             })
         }
     }
     
+    
+    /// Download artists from API
+    /// - Parameter artists: Integer array of artist ids
     private func getArtists(artists: [Int]) {
-        if downloadInprogress {
+        if downloadInProgress {
             return
         }
-        downloadInprogress = true
+        downloadInProgress = true
         let requestString: String = Constants.APIs.USER_RANGE + self.generateRequestStringForArtists(artists)
         DispatchQueue.global(qos: .default).async {
             APIService().fetchUsers(requestString: requestString, completionHandler: { [self] (getResponse:  () throws -> [Int : User]) in
                 do {
                     let artists = try getResponse()
                     self.updateAlbumsWith(users: artists)
-                    self.downloadInprogress = false
+                    self.downloadInProgress = false
                 } catch let error {
                     DDLogError("func:getArtists #\(error)")
-                    self.downloadInprogress = false
+                    self.downloadInProgress = false
                 }
             })
         }
@@ -227,7 +260,7 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
     // MARK: - Navigation
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "photoGallerySegue",
+        if segue.identifier == PHOTO_GALLERY_SEGUE,
            let index = sender as? Int,
             let vc = segue.destination as? PhotosCollectionViewController {
             vc.album = self.albums[index]
@@ -237,12 +270,6 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
 
 extension AlbumListViewController: UITableViewDataSource, UITableViewDelegate, UITableViewDataSourcePrefetching {
 
-    private func updateCellsWith(inIndexPaths: [IndexPath]) {
-        DispatchQueue.main.async {
-            self.albumTableView.reloadRows(at: inIndexPaths, with: .top)
-        }
-    }
-
     // MARK: UITableView DataSource
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -250,7 +277,7 @@ extension AlbumListViewController: UITableViewDataSource, UITableViewDelegate, U
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let cell: AlbumCell = tableView.dequeueReusableCell(withIdentifier: "AlbumCellIdentifier", for: indexPath) as? AlbumCell,
+        if let cell: AlbumCell = tableView.dequeueReusableCell(withIdentifier: ALBUM_CELL_IDENTIFIER, for: indexPath) as? AlbumCell,
            self.albums.count > 0 {
             cell.album = self.albums[indexPath.row]
             return cell
@@ -259,26 +286,29 @@ extension AlbumListViewController: UITableViewDataSource, UITableViewDelegate, U
         }
     }
     
-    // MARK: UITableView Delegate
-    
+    // MARK: UITableViewDataSourcePrefetching Delegate
     func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         if isTimeToFetch(for: indexPaths) {
             self.getAlbums(albumIndex: lastAlbumId + 1  , offset: downloadOffset)
         }
     }
+
+    // MARK: UITableView Delegate
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: PHOTO_GALLERY_SEGUE, sender: indexPath.row)
+    }
     
+    /// Decide when to initiate pre-fetch albums
+    /// - Parameter indexPaths: requested indices by iOS
+    /// - Returns: ready to pre-fetch status
     private func isTimeToFetch(for indexPaths: [IndexPath]) -> Bool {
         if lastFetchBlockSize == 0 {
             return false
         }
-        for indexPath in indexPaths where indexPath.row >= albums.count - downloadBufffer {
+        for indexPath in indexPaths where indexPath.row >= albums.count - downloadBuffer {
             return true
         }
         return false
     }
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        performSegue(withIdentifier: "photoGallerySegue", sender: indexPath.row)
-    }
-
 }

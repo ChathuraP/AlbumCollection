@@ -18,8 +18,8 @@
 		77BDF4AB287D3699003C99E2 /* LoadingViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 77BDF4A7287D3699003C99E2 /* LoadingViewController.xib */; };
 		77BDF4AC287D3699003C99E2 /* LoadingViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 77BDF4A7287D3699003C99E2 /* LoadingViewController.xib */; };
 		77BDF4AD287D3699003C99E2 /* LoadingViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 77BDF4A7287D3699003C99E2 /* LoadingViewController.xib */; };
-		77BDF4B6287D93DB003C99E2 /* StringExtention.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D1BB89287938400007AF99 /* StringExtention.swift */; };
-		77BDF4B7287D93DC003C99E2 /* StringExtention.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D1BB89287938400007AF99 /* StringExtention.swift */; };
+		77BDF4B6287D93DB003C99E2 /* StringExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D1BB89287938400007AF99 /* StringExtension.swift */; };
+		77BDF4B7287D93DC003C99E2 /* StringExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D1BB89287938400007AF99 /* StringExtension.swift */; };
 		77BDF4B8287D93F3003C99E2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 77FB13DD28791DB900DB27AA /* Main.storyboard */; };
 		77BDF4B9287D93F3003C99E2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 77FB13DD28791DB900DB27AA /* Main.storyboard */; };
 		77BDF4BA287D9404003C99E2 /* AlbumListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77FB13DB28791DB900DB27AA /* AlbumListViewController.swift */; };
@@ -45,7 +45,7 @@
 		77D1BB86287932A00007AF99 /* AFService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D1BB85287932A00007AF99 /* AFService.swift */; };
 		77D1BB87287932A00007AF99 /* AFService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D1BB85287932A00007AF99 /* AFService.swift */; };
 		77D1BB88287932A00007AF99 /* AFService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D1BB85287932A00007AF99 /* AFService.swift */; };
-		77D1BB8A287938400007AF99 /* StringExtention.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D1BB89287938400007AF99 /* StringExtention.swift */; };
+		77D1BB8A287938400007AF99 /* StringExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D1BB89287938400007AF99 /* StringExtension.swift */; };
 		77D1BB8C28793F430007AF99 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D1BB8B28793F430007AF99 /* Constants.swift */; };
 		77D1BB8D28793F430007AF99 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D1BB8B28793F430007AF99 /* Constants.swift */; };
 		77D1BB8E28793F430007AF99 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D1BB8B28793F430007AF99 /* Constants.swift */; };
@@ -102,7 +102,7 @@
 		77D1BB7D28792DB80007AF99 /* Photo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
 		77D1BB81287932550007AF99 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		77D1BB85287932A00007AF99 /* AFService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AFService.swift; sourceTree = "<group>"; };
-		77D1BB89287938400007AF99 /* StringExtention.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtention.swift; sourceTree = "<group>"; };
+		77D1BB89287938400007AF99 /* StringExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtension.swift; sourceTree = "<group>"; };
 		77D1BB8B28793F430007AF99 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		77D1BB9028797A590007AF99 /* AlbumCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumCell.swift; sourceTree = "<group>"; };
 		77D1BB94287BBF4C0007AF99 /* UIImageViewExtention.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageViewExtention.swift; sourceTree = "<group>"; };
@@ -217,7 +217,7 @@
 		77D1BB742879213B0007AF99 /* Utility */ = {
 			isa = PBXGroup;
 			children = (
-				77D1BB89287938400007AF99 /* StringExtention.swift */,
+				77D1BB89287938400007AF99 /* StringExtension.swift */,
 				77D1BB94287BBF4C0007AF99 /* UIImageViewExtention.swift */,
 				77D1BB8B28793F430007AF99 /* Constants.swift */,
 			);
@@ -559,7 +559,7 @@
 				77D1BB7A28792D910007AF99 /* User.swift in Sources */,
 				77D1BB7628792D5F0007AF99 /* Album.swift in Sources */,
 				77D1BB9128797A590007AF99 /* AlbumCell.swift in Sources */,
-				77D1BB8A287938400007AF99 /* StringExtention.swift in Sources */,
+				77D1BB8A287938400007AF99 /* StringExtension.swift in Sources */,
 				77D1BB95287BBF4C0007AF99 /* UIImageViewExtention.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -578,7 +578,7 @@
 				77BDF4BC287D9409003C99E2 /* SceneDelegate.swift in Sources */,
 				77D1BBA2287C039D0007AF99 /* PhotoThumbnailViewCell.swift in Sources */,
 				77D1BB8D28793F430007AF99 /* Constants.swift in Sources */,
-				77BDF4B6287D93DB003C99E2 /* StringExtention.swift in Sources */,
+				77BDF4B6287D93DB003C99E2 /* StringExtension.swift in Sources */,
 				77D1BB7728792D5F0007AF99 /* Album.swift in Sources */,
 				77D1BB7B28792D910007AF99 /* User.swift in Sources */,
 				77BDF4A9287D3699003C99E2 /* LoadingViewController.swift in Sources */,
@@ -600,7 +600,7 @@
 				77D1BB84287932550007AF99 /* APIService.swift in Sources */,
 				77BDF4BD287D940A003C99E2 /* SceneDelegate.swift in Sources */,
 				77D1BB8028792DB80007AF99 /* Photo.swift in Sources */,
-				77BDF4B7287D93DC003C99E2 /* StringExtention.swift in Sources */,
+				77BDF4B7287D93DC003C99E2 /* StringExtension.swift in Sources */,
 				77BDF4AA287D3699003C99E2 /* LoadingViewController.swift in Sources */,
 				77D1BB88287932A00007AF99 /* AFService.swift in Sources */,
 				77BDF4BF287D940E003C99E2 /* AppDelegate.swift in Sources */,
