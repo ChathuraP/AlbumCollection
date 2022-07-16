@@ -265,6 +265,7 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
             let vc = segue.destination as? PhotosCollectionViewController {
             vc.album = self.albums[index]
         }
+        self.albumTableView.isUserInteractionEnabled = true
     }
 }
 
@@ -295,6 +296,7 @@ extension AlbumListViewController: UITableViewDataSource, UITableViewDelegate, U
 
     // MARK: UITableView Delegate
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        self.albumTableView.isUserInteractionEnabled = false
         performSegue(withIdentifier: PHOTO_GALLERY_SEGUE, sender: indexPath.row)
     }
     
