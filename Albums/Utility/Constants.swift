@@ -36,6 +36,13 @@ public struct Constants {
     
 }
 
+enum TaskStatus {
+    case start
+    case inProgress
+    case complete
+    case error
+}
+
 enum AppError: Error, CustomStringConvertible {
     case noData
     case fetchArtistFailed

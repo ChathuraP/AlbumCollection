@@ -13,8 +13,7 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
     @IBOutlet weak var albumTableView: UITableView!
     
     private let refreshControl = UIRefreshControl()
-    private var loadingIndicatorView = LoadingViewController()
-    private var firstDownload: Bool = true
+    private let loadingIndicatorView = LoadingViewController()
     private var albums: [Album] = [] {
         didSet {
             DispatchQueue.main.async {
@@ -35,13 +34,12 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
     private var downloadBuffer: Int = 5
     private var downloadOffset: Int = 19
     private var lastFetchBlockSize: Int = 1
-    private var apiFailed: Bool = false
-    private var downloadInProgress: Bool = false {
+    private var downloadTask: TaskStatus = .complete {
         didSet {
-            self.showDownloadIndicator(self.downloadInProgress)
+            self.showIndicator(downloadTask)
         }
     }
-    
+    private var firstDownload: Bool = true
     // MARK: - LifeCycle functions
     
     override func viewDidLoad() {
@@ -64,7 +62,6 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
         artists.removeAll()
         tempAlbums.removeAll()
         firstDownload = true
-        apiFailed = false
         lastFetchBlockSize = 1
         getAlbums(albumIndex: 0, offset: downloadOffset)
     }
@@ -93,36 +90,39 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
     
     /// Show loading inProgress and Error re-try screens
     /// - Parameter show: Indicates download in progress or completed
-    private func showDownloadIndicator(_ show: Bool) {
-        if firstDownload { // show download progress only for the first album download session, since rest are pre-fetch
+    private func showIndicator(_ status: TaskStatus) {
+        if !firstDownload {
+            return
+        }
+        switch status {
+        case .start, .inProgress:
             DispatchQueue.main.async {
-                if show {
-                    if self.loadingIndicatorView.viewIfLoaded?.window == nil {
-                        self.loadingIndicatorView.delegate = self
-                        let navi = UINavigationController(rootViewController: self.loadingIndicatorView)
-                        navi.modalPresentationStyle = .fullScreen
-                        self.present(navi, animated: false, completion: nil)
-                    }
-                } else {
-                    if self.loadingIndicatorView.viewIfLoaded?.window != nil {
-                        if self.apiFailed {
-                            self.loadingIndicatorView.errorOccurred = true
-                            self.firstDownload = true
-                        } else {
-                            self.firstDownload = false
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                self.loadingIndicatorView.dismiss(animated: true)
-                            }
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                            self.refreshControl.endRefreshing()
-                        }
-                    }
+                if self.loadingIndicatorView.viewIfLoaded?.window == nil {
+                    self.loadingIndicatorView.delegate = self
+                    let navi = UINavigationController(rootViewController: self.loadingIndicatorView)
+                    navi.modalPresentationStyle = .fullScreen
+                    self.present(navi, animated: false, completion: nil)
                 }
+            }
+        case .complete:
+            firstDownload = false
+            DispatchQueue.main.async {
+                self.loadingIndicatorView.dismiss(animated: true)
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.refreshControl.endRefreshing()
+            }
+        case .error:
+            firstDownload = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.refreshControl.endRefreshing()
+            }
+            DispatchQueue.main.async {
+                self.loadingIndicatorView.isErrorOccurred = true
             }
         }
     }
-    
     
     /// Download artists data for already downloaded albums
     /// - Parameter albums: Downloaded albums
@@ -214,21 +214,20 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
     ///   - albumIndex: Starting album id
     ///   - offset: How many albums needs to download
     private func getAlbums(albumIndex: Int, offset: Int) {
-        if downloadInProgress {
+        if downloadTask == .start || downloadTask == .inProgress {
             return
         }
-        downloadInProgress = true
+        downloadTask = .start
         let requestString: String = Constants.APIs.ALBUM_RANGE + self.generateRequestStringForAlbums(start: albumIndex, offset: offset)
         DispatchQueue.global(qos: .default).async {
             APIService().fetchAlbums(requestString: requestString, completionHandler: { [self] (getResponse:  () throws -> [Album]) in
                 do {
                     let albums = try getResponse()
-                    self.downloadInProgress = false
+                    self.downloadTask = .complete
                     self.fetchArtistForAlbums(albums)
                 } catch let error {
                     DDLogError("func:getAlbums #\(error)")
-                    self.apiFailed = true
-                    self.downloadInProgress = false
+                    self.downloadTask = .error
                 }
             })
         }
@@ -238,20 +237,20 @@ class AlbumListViewController: UIViewController, LoadingViewDelegate {
     /// Download artists from API
     /// - Parameter artists: Integer array of artist ids
     private func getArtists(artists: [Int]) {
-        if downloadInProgress {
+        if downloadTask == .start || downloadTask == .inProgress {
             return
         }
-        downloadInProgress = true
+        downloadTask = .start
         let requestString: String = Constants.APIs.USER_RANGE + self.generateRequestStringForArtists(artists)
         DispatchQueue.global(qos: .default).async {
             APIService().fetchUsers(requestString: requestString, completionHandler: { [self] (getResponse:  () throws -> [Int : User]) in
                 do {
                     let artists = try getResponse()
                     self.updateAlbumsWith(users: artists)
-                    self.downloadInProgress = false
+                    self.downloadTask = .complete
                 } catch let error {
                     DDLogError("func:getArtists #\(error)")
-                    self.downloadInProgress = false
+                    self.downloadTask = .error
                 }
             })
         }

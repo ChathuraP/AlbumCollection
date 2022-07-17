@@ -20,10 +20,10 @@ class LoadingViewController: UIViewController {
     @objc weak var delegate: LoadingViewDelegate?
     
     /// Used for toggle between download InProgress and Error occurred screens
-    var errorOccurred: Bool = false {
+    var isErrorOccurred: Bool = false {
         didSet {
-            DispatchQueue.main.async {
-                self.errorView.isHidden = !self.errorOccurred
+            if self.errorView != nil {
+                self.errorView.isHidden = !self.isErrorOccurred
             }
         }
     }
@@ -32,5 +32,10 @@ class LoadingViewController: UIViewController {
     /// - Parameter sender: UIButton
     @IBAction func reTryButtonTapped(_ sender: UIButton) {
         self.delegate?.retryButtonTapped()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.errorView.isHidden = !self.isErrorOccurred
     }
 }

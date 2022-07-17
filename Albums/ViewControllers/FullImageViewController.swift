@@ -11,7 +11,7 @@ import CocoaLumberjack
 
 class FullImageViewController: UIViewController {
     
-    @IBOutlet weak var imageScrollView: ImageScrollView!
+    @IBOutlet weak var imageScrollView: ImageScrollView?
     
     var photoData: Photo? = nil {
         didSet {
@@ -29,12 +29,21 @@ class FullImageViewController: UIViewController {
             }
         }
     }
+    private var fullImage: UIImage? = nil {
+        didSet {
+            if let image = fullImage, imageScrollView != nil {
+                self.imageScrollView?.display(image: image)
+            } else {
+                self.imageScrollView?.display(image: UIImage(named: "no-image")!)
+            }
+        }
+    }
     
     // MARK: - LifeCycle functions
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.imageScrollView.setup()
+        self.imageScrollView?.setup()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -42,6 +51,7 @@ class FullImageViewController: UIViewController {
         if let data = photoData {
             self.title = String(data.id)
         }
+        self.fullImage = (self.fullImage != nil) ? fullImage : nil
     }
     
     // MARK: - Private functions
@@ -54,9 +64,11 @@ class FullImageViewController: UIViewController {
                 self.navigationController?.popViewController(animated: true)
             })
         }))
-        self.present(alert, animated: true, completion: nil)
+        DispatchQueue.main.async {
+            self.present(alert, animated: true, completion: nil)
+        }
     }
-    
+ 
     // MARK: - API Network calls
     
     /// Download full size image from API
@@ -65,15 +77,15 @@ class FullImageViewController: UIViewController {
         APIService().fetchImageFromURL(requestURL: url) { [self] (getResponse:  () throws -> UIImage?) in
             do {
                 if let image = try getResponse() {
-                    self.imageScrollView.display(image: image)
+                    self.fullImage = image
                 } else {
                     DDLogError("func:downloadImageFormURL failed")
-                    self.imageScrollView.display(image: UIImage(named: "no-image")!)
+                    self.fullImage = nil
                     self.showErrorPopup()
                 }
             } catch let error {
                 DDLogError("func:downloadImageFormURL #\(error)")
-                self.imageScrollView.display(image: UIImage(named: "no-image")!)
+                self.fullImage = nil
                 self.showErrorPopup()
             }
         }

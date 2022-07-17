@@ -17,7 +17,7 @@ extension UIImageView {
     /// - Parameter urlString: image URL
     func loadImageFromCache(with urlString: String) {
         self.image = nil
-        
+        let placeholderImage = UIImage(named: "no-image")!
         if let cachedImage = imageCache.object(forKey: urlString as NSString) {
             self.image = cachedImage
             return
@@ -27,11 +27,11 @@ extension UIImageView {
                 if let downloadedImage = try getResponse() {
                     self.cacheAndSetNewImage(downloadedImage: downloadedImage, forURL: urlString)
                 } else {
-                    self.setNewImage(UIImage(named: "no-image")!)
+                    self.setNewImage(placeholderImage)
                     DDLogError("func:loadImageFromCache decode image failed)")
                 }
             } catch let error {
-                self.setNewImage(UIImage(named: "no-image")!)
+                self.setNewImage(placeholderImage)
                 DDLogError("func:loadImageFromCache #\(error)")
             }
         }

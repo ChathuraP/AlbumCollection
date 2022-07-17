@@ -32,7 +32,7 @@
                     <color key="textColor" red="0.97472208739999999" green="0.81083160639999996" blue="0.25754219290000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <nil key="highlightedColor"/>
                 </label>
-                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ha6-Nm-fib" userLabel="ReloadView">
+                <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ha6-Nm-fib" userLabel="ReloadView">
                     <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                     <subviews>
                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="warning-error" translatesAutoresizingMaskIntoConstraints="NO" id="mnH-BX-xxU">

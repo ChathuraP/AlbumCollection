@@ -13,9 +13,9 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
     var album: Album? = nil
     
     private var loadingIndicatorView = LoadingViewController()
-    private var downloadInProgress: Bool = false {
+    private var downloadTask: TaskStatus = .complete {
         didSet {
-            self.showDownloadIndicator(self.downloadInProgress)
+            self.showIndicator(downloadTask)
         }
     }
     private var photos: [Photo] = [] {
@@ -25,8 +25,6 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
             }
         }
     }
-    private var apiFailed: Bool = false
-    
     private let IMAGE_FULLSCREEN_SEGUE = "imageFullscreenSegue"
     private let IMAGE_THUMB_CELL_IDENTIFIER = "imageThumbCellIdentifier"
     
@@ -52,7 +50,6 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
     
     /// Restart the download of photo data from the selected album.
     func retryButtonTapped() {
-        apiFailed = false
         if let photoAlbum = album,
            photoAlbum.id != -1 {
             self.getPhotos(albumId: photoAlbum.id)
@@ -61,25 +58,24 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
     
     /// Show loading inProgress and Error re-try screens
     /// - Parameter show: Indicates download in progress or completed
-    private func showDownloadIndicator(_ show: Bool) {
-        DispatchQueue.main.async {
-            if show {
+    private func showIndicator(_ status: TaskStatus) {
+        switch status {
+        case .start, .inProgress:
+            DispatchQueue.main.async {
                 if self.loadingIndicatorView.viewIfLoaded?.window == nil {
                     self.loadingIndicatorView.delegate = self
                     let navi = UINavigationController(rootViewController: self.loadingIndicatorView)
                     navi.modalPresentationStyle = .fullScreen
                     self.present(navi, animated: false, completion: nil)
                 }
-            } else {
-                if self.loadingIndicatorView.viewIfLoaded?.window != nil {
-                    if self.apiFailed {
-                        self.loadingIndicatorView.errorOccurred = true
-                    } else {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            self.loadingIndicatorView.dismiss(animated: true)
-                        }
-                    }
-                }
+            }
+        case .complete:
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.loadingIndicatorView.dismiss(animated: true)
+            }
+        case .error:
+            DispatchQueue.main.async {
+                self.loadingIndicatorView.isErrorOccurred = true
             }
         }
     }
@@ -89,10 +85,10 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
     /// Download photo data from API
     /// - Parameter albumId: AlbumId of the photo data belongs to
     private func getPhotos(albumId: Int) {
-        if downloadInProgress {
+        if downloadTask == .start || downloadTask == .inProgress {
             return
         }
-        downloadInProgress = true
+        downloadTask = .start
         if let selectedAlbum = self.album {
             let requestURL: String = Constants.URLs.BASEURL + Constants.APIs.PHOTO_ALBUM + String(selectedAlbum.id)
             DispatchQueue.global(qos: .userInitiated).async {
@@ -101,16 +97,14 @@ class PhotosCollectionViewController: UICollectionViewController, UICollectionVi
                         let photos = try getResponse()
                         if photos.count > 0 {
                             self.photos = photos
-                            self.downloadInProgress = false
+                            self.downloadTask = .complete
                         } else {
                             DDLogError("func:getPhotos returns empty")
-                            self.apiFailed = true
-                            self.downloadInProgress = false
+                            self.downloadTask = .error
                         }
                     } catch let error {
                         DDLogError("func:getPhotos #\(error)")
-                        self.apiFailed = true
-                        self.downloadInProgress = false
+                        self.downloadTask = .error
                     }
                 })
             }
